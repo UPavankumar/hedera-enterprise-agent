@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.streamlit/
+invoice_approvals.log
+Submission_Ledger.xlsx
+*.pdf
+.DS_Store
