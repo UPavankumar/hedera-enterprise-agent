@@ -3,7 +3,8 @@
 transformer.py  –  Canonical dict → StandardINF API payload
 
 Enforcement rules (Feb 2026):
-  1. Seller fields for Type 01/02/03/04  → always DLC master defaults, never null/missing
+  1. Seller fields for Type 01/02/03/04  → always Master defaults, never null/missing
+
   2. Buyer fields for Type 11/12/13/14   → defaults applied where extraction incomplete
   3. Payment Mode                         → numeric codes (01/02/03/NA), no free text
   4. Bill Reference Number                → "NA" if missing, never ":" or empty
@@ -26,25 +27,26 @@ class DuplicateInvoiceError(Exception):
     """Raised when the invoice number already exists in the ledger."""
 
 
-# ── DLC Seller master data (Types 01 / 02 / 03 / 04) ──────────────────────────
-_DLC_SELLER = {
-    "name":              "DLC ENGINEERS SDN BHD",
-    "tin":               "C21926750020",
+# ── GTS Seller master data (Types 01 / 02 / 03 / 04) ──────────────────────
+_MASTER_SELLER = {
+    "name":              "GLOBAL TECH SOLUTIONS SDN BHD",
+    "tin":               "C1234567890",
     "category":          "BRN",
-    "registration_no":   "201201001490",
-    "sst_id":            "B16180821021299",
-    "email":             "dlcesb@dlcengineers.com",
+    "registration_no":   "202401000000",
+    "sst_id":            "W10-1808-12345678",
+    "email":             "contact@globaltech.example.com",
     "msic":              "71102",
-    "contact":           "60376655768",
-    "addr_line0":        "B-07-07",
-    "addr_line1":        "Menara Prima",
-    "addr_line2":        "Jalan PJU 1/39 Dataran Prima",
-    "postal_zone":       "47301",
-    "city_name":         "Petaling Jaya",
-    "state":             "10",          # Selangor – always numeric, never "NA"
+    "contact":           "60312345678",
+    "addr_line0":        "Unit 1-1",
+    "addr_line1":        "Tech Plaza",
+    "addr_line2":        "Jalan Innovation",
+    "postal_zone":       "50450",
+    "city_name":         "Kuala Lumpur",
+    "state":             "14",          # WP Kuala Lumpur
     "country":           "MYS",
-    "business_activity": "Engineering Consultancy",
+    "business_activity": "Technology Services",
 }
+
 
 # ── SB invoice buyer-side defaults (Types 11 / 12 / 13 / 14) ──────────────────
 _SB_BUYER_DEFAULTS = {
@@ -438,19 +440,19 @@ def transform(canonical: dict) -> dict:
     if doc_type == "11":
         endpoint    = "STDINFJSONSubmitSBInvoice"
         line_key    = "SBInvoiceLine"
-        source_name = "SBINDLC"
+        source_name = "SBINGTS"
     elif doc_type == "02":
         endpoint    = "STDINFJSONSubmitCreditNote"
         line_key    = "CreditNoteLine"
-        source_name = "CNDLC"
+        source_name = "CNGTS"
     elif doc_type == "03":
         endpoint    = "STDINFJSONSubmitDebitNote"
         line_key    = "DebitNoteLine"
-        source_name = "DNDLC"
+        source_name = "DNGTS"
     else:
         endpoint    = "STDINFJSONSubmitInvoice"
         line_key    = "InvoiceLine"
-        source_name = "INDLC"
+        source_name = "INGTS"
 
     # ── 3. Amounts ─────────────────────────────────────────────────────────────
     total_amt  = _amount_str(totals.get("total_amount"))
@@ -553,8 +555,8 @@ def transform(canonical: dict) -> dict:
         }
 
     # ── 10. SELLER & BUYER blocks – SWAP for SB invoices ────────────────────────
-    # For SB (type 11+): Payload Seller = extracted buyer, Payload Buyer = DLC defaults
-    # For others:       Payload Seller = DLC defaults, Payload Buyer = extracted buyer
+    # For SB (type 11+): Payload Seller = extracted buyer, Payload Buyer = Master defaults
+    # For others:       Payload Seller = Master defaults, Payload Buyer = extracted buyer
 
     if is_sb:
         # SB: Seller = extracted buyer (individual/supplier)
@@ -577,20 +579,20 @@ def transform(canonical: dict) -> dict:
         seller_email = _na(sb_seller.get("email"))
         seller_contact = _alphanumeric_only(sb_seller.get("contact")) or "NA"
 
-        # SB: Buyer = DLC defaults
-        ba = _split_address("", state_fallback="10")  # Empty to use DLC defaults
-        buyer_name     = _DLC_SELLER["name"]
-        buyer_tin_raw  = _DLC_SELLER["tin"]
-        buyer_brn      = _DLC_SELLER["registration_no"]
-        buyer_sst      = _DLC_SELLER["sst_id"]
-        buyer_email    = _DLC_SELLER["email"]
-        buyer_contact  = _DLC_SELLER["contact"]
-        buyer_addr0    = _DLC_SELLER["addr_line0"]
-        buyer_addr1    = _DLC_SELLER["addr_line1"]
-        buyer_addr2    = _DLC_SELLER["addr_line2"]
-        buyer_postal   = _DLC_SELLER["postal_zone"]
-        buyer_city     = _DLC_SELLER["city_name"]
-        buyer_state    = _DLC_SELLER["state"]
+        # SB: Buyer = Master defaults
+        ba = _split_address("", state_fallback="10")  # Empty to use Master defaults
+        buyer_name     = _MASTER_SELLER["name"]
+        buyer_tin_raw  = _MASTER_SELLER["tin"]
+        buyer_brn      = _MASTER_SELLER["registration_no"]
+        buyer_sst      = _MASTER_SELLER["sst_id"]
+        buyer_email    = _MASTER_SELLER["email"]
+        buyer_contact  = _MASTER_SELLER["contact"]
+        buyer_addr0    = _MASTER_SELLER["addr_line0"]
+        buyer_addr1    = _MASTER_SELLER["addr_line1"]
+        buyer_addr2    = _MASTER_SELLER["addr_line2"]
+        buyer_postal   = _MASTER_SELLER["postal_zone"]
+        buyer_city     = _MASTER_SELLER["city_name"]
+        buyer_state    = _MASTER_SELLER["state"]
         buyer_category = "BRN"
         buyer_country  = "MYS"
         buyer_id_no    = "NA"
@@ -598,20 +600,20 @@ def transform(canonical: dict) -> dict:
         sb_seller_msic     = _alphanumeric_only(sb_seller.get("misc_code")) or "00000"
         sb_seller_category = "NRIC"
     else:
-        # Non-SB: Seller = DLC defaults
+        # Non-SB: Seller = Master defaults
         seller_bank = _na(canonical["seller"].get("bank_account"))
-        seller_addr0 = _DLC_SELLER["addr_line0"]
-        seller_addr1 = _DLC_SELLER["addr_line1"]
-        seller_addr2 = _DLC_SELLER["addr_line2"]
-        seller_postal= _DLC_SELLER["postal_zone"]
-        seller_city  = _DLC_SELLER["city_name"]
-        seller_state = _DLC_SELLER["state"]
-        seller_sst   = _DLC_SELLER["sst_id"]
-        seller_name  = _DLC_SELLER["name"]
-        seller_tin   = _DLC_SELLER["tin"]
-        seller_brn   = _DLC_SELLER["registration_no"]
-        seller_email = _DLC_SELLER["email"]
-        seller_contact = _DLC_SELLER["contact"]
+        seller_addr0 = _MASTER_SELLER["addr_line0"]
+        seller_addr1 = _MASTER_SELLER["addr_line1"]
+        seller_addr2 = _MASTER_SELLER["addr_line2"]
+        seller_postal= _MASTER_SELLER["postal_zone"]
+        seller_city  = _MASTER_SELLER["city_name"]
+        seller_state = _MASTER_SELLER["state"]
+        seller_sst   = _MASTER_SELLER["sst_id"]
+        seller_name  = _MASTER_SELLER["name"]
+        seller_tin   = _MASTER_SELLER["tin"]
+        seller_brn   = _MASTER_SELLER["registration_no"]
+        seller_email = _MASTER_SELLER["email"]
+        seller_contact = _MASTER_SELLER["contact"]
         sb_seller_identification_number = "NA"  # Not used for non-SB
         sb_seller_msic = "00000"  # Not used for non-SB
         sb_seller_category = "BRN"  # Not used for non-SB
@@ -654,12 +656,12 @@ def transform(canonical: dict) -> dict:
         "Seller Bank Account Number":                     seller_bank if not is_sb else sb_seller_bank,
         "Seller Name":                                    seller_name,
         "Seller TIN":                                     seller_tin,
-        "Seller Category":                                sb_seller_category if is_sb else _DLC_SELLER["category"],
+        "Seller Category":                                sb_seller_category if is_sb else _MASTER_SELLER["category"],
         "Seller Business Registration Number":            _alphanumeric_only(seller_brn) if seller_brn and seller_brn != "NA" else seller_brn,
         "Seller Identification Number or Passport Number":_alphanumeric_only(sb_seller_identification_number) if sb_seller_identification_number and sb_seller_identification_number != "NA" else sb_seller_identification_number,
         "Seller SST Registration Number":                 seller_sst,
         "Seller e-mail":                                  seller_email,
-        "Seller Malaysia Standard Industrial Classification Code": sb_seller_msic if is_sb else _DLC_SELLER["msic"],
+        "Seller Malaysia Standard Industrial Classification Code": sb_seller_msic if is_sb else _MASTER_SELLER["msic"],
         "Seller Contact Number":                          seller_contact,
         "Seller Address Line 0":                          seller_addr0,
         "Seller Address Line 1":                          seller_addr1,
@@ -668,8 +670,8 @@ def transform(canonical: dict) -> dict:
         "Seller City Name":                               seller_city,
         "Seller State":                                   seller_state, # NEVER "NA"
         "Seller Country":                                 "MYS",
-        "Seller Business Activity Description":           "NA" if is_sb else _DLC_SELLER["business_activity"],
-        "Seller MSIC":                                    sb_seller_msic if is_sb else _DLC_SELLER["msic"],
+        "Seller Business Activity Description":           "NA" if is_sb else _MASTER_SELLER["business_activity"],
+        "Seller MSIC":                                    sb_seller_msic if is_sb else _MASTER_SELLER["msic"],
 
         # Buyer
         "Buyer Name":                                     buyer_name,

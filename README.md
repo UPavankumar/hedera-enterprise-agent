@@ -143,8 +143,8 @@ SubmissionLedger  →  Submission_Ledger.xlsx
 |---|---|
 | Invoice Number | 2637 |
 | Date | 2026-02-05 |
-| Seller | DD Engineers Sdn Bhd |
-| Buyer | YYY |
+| Seller | Global Tech Solutions Sdn Bhd |
+| Buyer | Enterprise Buyer Corp |
 | Subtotal | MYR 4,155.00 |
 | Tax (8% SST) | MYR 332.40 |
 | **Total** | **MYR 4,487.40** |

@@ -154,7 +154,7 @@ def _extract_header(text: str) -> dict:
         s = ln.strip()
         if not s:
             continue
-        if re.match(r"^(DLC|ENGINEERS|SDN|BHD)", s, re.IGNORECASE):
+        if re.match(r"^(GLOBAL|TECH|SOLUTIONS|SDN|BHD)", s, re.IGNORECASE):
             if re.search(r"Supplier|Buyer|Invoice|Credit|Self", s, re.IGNORECASE):
                 break
             name_lines.append(s)
@@ -507,7 +507,7 @@ def _lines_type02_03(text: str) -> list:
     # Fallback: trailing-amount row scan (original type02 logic)
     EXCLUDE = re.compile(
         r"^(Sub-?Total|Service\s+Tax|TOTAL|E\s*&\s*O|Less\s+Previous"
-        r"|Ringgit|For\s+DLC|Authorised|Attn)",
+        r"|Ringgit|For\s+GTS|Authorised|Attn)",
         re.IGNORECASE,
     )
     result = []
@@ -569,12 +569,12 @@ def _build_canonical(doc_type, header, supplier, buyer, doc_ids, lines, totals, 
     Build canonical dict.
 
     For Type 11 (Self-Billed):
-      PDF labels individual as 'Supplier', DLC as 'Buyer'.
-      But for SB invoices, DLC is the seller (self-biller) and individual is the buyer.
-      So we SWAP them: canonical seller = DLC, canonical buyer = individual.
+      PDF labels individual as 'Supplier', Generic Seller as 'Buyer'.
+      But for SB invoices, Generic Seller is the seller (self-biller) and individual is the buyer.
+      So we SWAP them: canonical seller = Generic Seller, canonical buyer = individual.
     """
     if doc_type == "11":
-        # SWAP: seller = DLC (from PDF buyer), buyer = individual (from PDF supplier)
+        # SWAP: seller = Generic Seller (from PDF buyer), buyer = individual (from PDF supplier)
         seller = dict(
             name            = buyer["name"] or header.get("company_name"),
             tin             = buyer["tin"],
