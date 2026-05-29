@@ -168,7 +168,7 @@ SubmissionLedger  →  Submission_Ledger.xlsx
 |---|---|
 | Invoice Number | 2637 |
 | Date | 2026-02-05 |
-| Seller | DLC Engineers Sdn Bhd |
+| Seller | DD Engineers Sdn Bhd |
 | Buyer | Mtrustee Bhd (IGB REIT) |
 | Subtotal | MYR 4,155.00 |
 | Tax (8% SST) | MYR 332.40 |
