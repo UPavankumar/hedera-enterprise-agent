@@ -1,32 +1,7 @@
 # Enterprise Autonomous Accounts Payable Agent
 
 > **Author:** [UPavankumar](https://github.com/UPavankumar)  
-> **Submission for:** [Hedera AI Agent Bounty — Week 2: Enterprise Agent + Plugin](https://github.com/UPavankumar)
-
----
-
-## 🏆 Hedera AI Agent Bounty Context
-
-### How it works
-Build an agent. Submit. Win HBAR.
-- **01 Pick a bounty:** A new bounty opens every Monday.
-- **02 Build with the Hedera Agent Kit:** Ship your project as a public GitHub repo using the Hedera Agent Kit (JS or Python).
-- **03 Submit before Sunday 23:59 UTC:** Drop your repo, a live demo or social-media post, and a short description.
-- **04 Get paid in HBAR:** Winners are announced at the end of the judging period.
-
-### The Bounties
-| Week | Bounty | Status | Payout |
-|---|---|---|---|
-| Week 1 | Fun Basic Hedera Agent | Passed | $500 |
-| **Week 2** | **Enterprise Agent + Plugin** | **Live** | **$750** |
-| Week 3 | MCP or x402 Agent | Upcoming | $1,000 |
-| Week 4 | Hedera Commerce Agent | Upcoming | $1,000 |
-| Week 5 | Hedera Policy Agent | Upcoming | $1,500 |
-
-### My Submission: Enterprise Agent + Plugin
-**Project Name:** Enterprise Autonomous Accounts Payable Agent  
-**Bounty:** Week 2: Enterprise Agent + Plugin  
-**Implementation:** Integrates Hedera Agent Kit with a real-world enterprise workflow (PDF extraction, HCS audit, HBAR transfer, and custom plugin notifications).
+> **Built for:** [Hedera AI Agent Bounty — Week 2: Enterprise Agent + Plugin](https://github.com/UPavankumar)
 
 ---
 
